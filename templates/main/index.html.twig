@@ -11,6 +11,73 @@
 <div class="example-wrapper">
     <h1>Hello {{ app.user.username }}! ✅</h1>
 
-  
+    {% if pokemon is defined %}
+        <div>
+            <p>¡Has encontrado a un Pokémon!</p>
+              <img width="40" src="/uploads/brochures/{{ pokemon.getImagen() }}" > 
+              <p>{{ pokemon.getNombre() }}</p>      
+            <br>
+            <a href="{{ path('cazar_pokemon', { 'id': pokemon.id }) }}" class="btn btn-success">Cazar</a>
+            <a href="{{ path('cancelar_caza') }}" class="btn btn-danger">Cancelar</a>
+        </div>
+    {% else %}
+        <div>
+            <p>Haz clic en el botón para buscar un Pokémon</p>
+            <a href="{{ path('mostrar_pokemon') }}" class="btn btn-primary">Buscar Pokémon</a>
+        </div>
+    {% endif %}
+
+    {% if pokedex is defined and pokedex %}
+        <h2>Tus Pokémon</h2>
+        <ul>
+            {% for pokedexPokemon in pokedex.getPokedexPokemon() %}
+                <li>
+
+                    <img width="40" src="uploads/brochures/{{ pokedexPokemon.getPokemon().getImagen() }}" alt="{{ pokedexPokemon.getPokemon().getNombre() }}">               
+
+                    {{ pokedexPokemon.getPokemon().getNombre() }} -
+                    Nivel: {{ pokedexPokemon.getNivel() }} -
+                    Fuerza: {{ pokedexPokemon.getFuerza() }}
+                </li>
+            {% endfor %}
+        </ul>
+        <h2>Entrenar Pokémon</h2>
+        <form method="post" action="{{ path('entrenar_pokemon') }}">
+            <label for="pokemonId">Selecciona un Pokémon:</label>
+            <select id="pokemonId" name="pokemonId">
+                {% for pokedexPokemon in pokedex.getPokedexPokemon() %}
+                    <option value="{{ pokedexPokemon.getId() }}">
+                        {{ pokedexPokemon.getPokemon().getNombre() }} - Nivel {{ pokedexPokemon.getNivel() }} - Fuerza {{ pokedexPokemon.getFuerza() }}
+                    </option>
+                {% endfor %}
+            </select>
+            <button type="submit">Entrenar</button>
+        </form>
+
+        <h1>PELEA!!</h1>
+        {{ form_start(battleForm, {'method': 'POST'}) }}
+        {{ form_widget(battleForm) }}
+        <button type="submit">Enfrentar Pokémon</button>
+        {{ form_end(battleForm) }}
+
+        {% if resultado is defined %}
+            <h2>Resultado de la Batalla</h2>
+            <p>Ganador: {{ resultado.ganador.getPokemon().getNombre() }}</p>
+            <p>Pokemon Oponente: {{ resultado.pokemonOponente.getNombre() }}</p>
+            <p>Nivel del Oponente: {{ resultado.nivelOponente }}</p>
+            <p>Fuerza del Oponente: {{ resultado.fuerzaOponente }}</p>
+        {% else %}
+            <p>No hay resultado de batalla disponible.</p>
+        {% endif %}
+    {% else %}
+        <p>No tienes Pokémon en tu Pokedex.</p>
+    {% endif %}
+
+    {% for flashMessage in app.flashes('battle_message') %}
+    <div class="flash-message">
+        {{ flashMessage }}
+    </div>
+{% endfor %}
+
 </div>
 {% endblock %}
